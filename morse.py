@@ -13,16 +13,21 @@ __author__ = 'Sarah Beverton'
 
 
 from morse_dict import MORSE_2_ASCII
-import re
 from itertools import groupby
 
 
 def decode_bits(bits):
+    bits.strip()
     group_lst = [''.join(g) for k, g in groupby(bits)]
     sorted_lst = sorted(group_lst, key=len)
+    print(len(sorted_lst[-1]))
     print(group_lst)
-    print(sorted_lst)
-    multiplier = len(sorted_lst[-1])//7
+    if len(sorted_lst[-1]) % 7 == 0:
+        multiplier = len(sorted_lst[-1])//7
+    elif len(sorted_lst[-1]) % 3 == 0:
+        multiplier = len(sorted_lst[-1])//3
+    else:
+        multiplier = 1
     print(multiplier)
     bits_list = []
     for num in group_lst:
@@ -43,20 +48,31 @@ def decode_bits(bits):
             morse_list.append(' ')
         elif bit == '0000000':
             morse_list.append('   ')
-    print(''.join(morse_list))
+    # print(''.join(morse_list))
     return ''.join(morse_list)
 
 
 def decode_morse(morse):
-    morse_codes_init = re.split(r"([.-]+)\s", morse)
-    morse_codes = list(filter(lambda x: x != "", morse_codes_init))
+    morse_codes = morse.split('   ')
     letters = []
-    for morse_code in morse_codes:
-        if morse_code != '  ':
-            letters.append(MORSE_2_ASCII.get(morse_code))
-        else:
-            letters.append(' ')
-    return ''.join(letters)
+    for morse_word in morse_codes:
+        chars = morse_word.split(" ")
+        for char in chars:
+            for k, v in MORSE_2_ASCII.items():
+                if char == k:
+                    letters.append(v)
+        letters.append(" ")
+    return ''.join(letters).strip()
+    '''
+    morse_codes = morse.split('   ')
+    letters = []
+    for morse_word in morse_codes:
+        chars = morse_word.split(" ")
+        for char in chars:
+            letters.append(MORSE_2_ASCII.get(char))
+        letters.append(" ")
+    return ''.join(letters).strip()
+    '''
 
 
 if __name__ == '__main__':
