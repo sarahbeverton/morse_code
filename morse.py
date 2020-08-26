@@ -18,8 +18,10 @@ import re
 
 
 def decode_bits(bits):
+    # group by character then sort by length of group
     group_lst = [''.join(g) for k, g in groupby(bits)]
     sorted_lst = sorted(group_lst, key=len)
+    # find multiplier
     if len(sorted_lst[0]) == 1:
         multiplier = 1
     elif len(sorted_lst[-1]) == 2:
@@ -34,11 +36,13 @@ def decode_bits(bits):
         multiplier = len(sorted_lst[-1])//3
     else:
         multiplier = 1
-    bits_list = []
+    # get rid of start and end 0's
     if(group_lst[0][0] == '0'):
         del group_lst[0]
     if(group_lst[-1][0] == '0'):
         del group_lst[-1]
+    # create list of bits divided by multiplier
+    bits_list = []
     for num in group_lst:
         if len(num) >= multiplier:
             if(multiplier == 1):
@@ -47,7 +51,9 @@ def decode_bits(bits):
                 bits_list.append(num[:-(len(num) - len(num)//multiplier)])
         else:
             bits_list.append(num[:1])
+    # translate bits to morse
     morse_list = []
+    # if only one element in bits and all are 1's, then it is a dot
     pattern = re.compile("^[1]+$")
     if len(bits_list) == 1 and pattern.match(bits_list[0]):
         morse_list.append(".")
