@@ -14,41 +14,67 @@ __author__ = 'Sarah Beverton'
 
 from morse_dict import MORSE_2_ASCII
 from itertools import groupby
+import re
 
 
 def decode_bits(bits):
-    bits.strip()
     group_lst = [''.join(g) for k, g in groupby(bits)]
     sorted_lst = sorted(group_lst, key=len)
-    print(len(sorted_lst[-1]))
-    print(group_lst)
-    if len(sorted_lst[-1]) % 7 == 0:
+    if len(sorted_lst[0]) == 1:
+        multiplier = 1
+    elif len(sorted_lst[-1]) == 2:
+        multiplier = 2
+    elif len(sorted_lst[-1]) == 3:
+        multiplier = 3
+    elif len(sorted_lst[-1]) == 5:
+        multiplier = 5
+    elif len(sorted_lst[-1]) % 7 == 0:
         multiplier = len(sorted_lst[-1])//7
     elif len(sorted_lst[-1]) % 3 == 0:
         multiplier = len(sorted_lst[-1])//3
     else:
         multiplier = 1
-    print(multiplier)
     bits_list = []
+    if(group_lst[0][0] == '0'):
+        del group_lst[0]
+    if(group_lst[-1][0] == '0'):
+        del group_lst[-1]
     for num in group_lst:
         if len(num) >= multiplier:
-            bits_list.append(num[:-(len(num) - len(num)//multiplier)])
+            if(multiplier == 1):
+                bits_list.append(num)
+            else:
+                bits_list.append(num[:-(len(num) - len(num)//multiplier)])
         else:
             bits_list.append(num[:1])
-    print(bits_list)
     morse_list = []
-    for bit in bits_list:
-        if bit == '1':
-            morse_list.append(".")
-        elif bit == '11' or bit == '111':
-            morse_list.append("-")
-        elif bit == '0':
-            morse_list.append('')
-        elif bit == '00':
-            morse_list.append(' ')
-        elif bit == '0000000':
-            morse_list.append('   ')
-    # print(''.join(morse_list))
+    pattern = re.compile("^[1]+$")
+    if len(bits_list) == 1 and pattern.match(bits_list[0]):
+        morse_list.append(".")
+    elif multiplier >= 3:
+        for bit in bits_list:
+            if bit == '1':
+                morse_list.append(".")
+            elif bit == '11' or bit == '111':
+                morse_list.append("-")
+            elif bit == '0':
+                morse_list.append('')
+            elif bit == '00' or bit == '000':
+                morse_list.append(' ')
+            elif bit == '0000000':
+                morse_list.append('   ')
+    else:
+        for bit in bits_list:
+            if bit == '1' or bit == '11':
+                morse_list.append(".")
+            elif bit == '111':
+                morse_list.append("-")
+            elif bit == '0':
+                morse_list.append('')
+            elif bit == '00' or bit == '000':
+                morse_list.append(' ')
+            elif bit == '0000000':
+                morse_list.append('   ')
     return ''.join(morse_list)
 
 
@@ -63,16 +89,6 @@ def decode_morse(morse):
                     letters.append(v)
         letters.append(" ")
     return ''.join(letters).strip()
-    '''
-    morse_codes = morse.split('   ')
-    letters = []
-    for morse_word in morse_codes:
-        chars = morse_word.split(" ")
-        for char in chars:
-            letters.append(MORSE_2_ASCII.get(char))
-        letters.append(" ")
-    return ''.join(letters).strip()
-    '''
 
 
 if __name__ == '__main__':
